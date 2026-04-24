@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Repository } from 'typeorm';
+import { Post } from './entities/post.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(
+    @InjectRepository(Post)
+    private postsRepository: Repository<Post>,
+  ) { }
+
+  async create(CreateDto: CreatePostDto): Promise<Post> {
+    const post = this.postsRepository.create(CreatePostDto);
+    return this.postsRepository.save(post);
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll(): promise<post> {
+    return await this.postsRepository.find({ relations: ['author'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number): promise<Post> {
+    return await this.postsRepository.findOne({ where: { id }, relations: ['author'] });
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto): promise<Post> {
+    const post = await this.postsRepository.findOne({ where: { id } });
+    if (!post) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number): promise< void> {
+      await this.postsRepository.delete(id);
+    }
   }
-}
