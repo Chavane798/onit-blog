@@ -9,7 +9,7 @@ export class PostsController {
 
   @Post()
   create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+    return this.postsService.create(createPostDto, 1);
   }
 
   @Get()
@@ -30,5 +30,10 @@ export class PostsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.remove(+id);
+  }
+
+  @Get('author/:authorId')
+  findByAuthor(@Param('authorId') authorId: string) {
+    return this.postsService.findByAuthor(+authorId);
   }
 }
